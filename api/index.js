@@ -333,14 +333,12 @@ app.get("/api", async (req, res) => {
             .filter(Boolean);
 
         if (!emoji1 || !emoji2) {
-            return res
-                .status(400)
-                .type("json")
-                .end(JSON.stringify({
-                    code: 400,
-                    msg: "Gunakan 2 emoji",
-                    example: "/emojimix?e=😂%2B🔥"
-                }, null, 2));
+            res.setHeader("Content-Type", "application/json");
+			return res.end(JSON.stringify({
+                code: 400,
+                msg: "Gunakan 2 emoji",
+                example: "/emojimix?e=😂%2B🔥"
+            }, null, 2));
         }
 
         for (const [a, b] of [[emoji1, emoji2], [emoji2, emoji1]]) {
@@ -353,7 +351,8 @@ app.get("/api", async (req, res) => {
             res.end(buffer);
         }
     } catch (error) {
-        return res.end(JSON.stringify({
+        res.setHeader("Content-Type", "application/json");
+		return res.end(JSON.stringify({
             code: 404,
             msg: error.message
         }, null, 2));
