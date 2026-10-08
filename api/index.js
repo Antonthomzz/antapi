@@ -324,7 +324,7 @@ const getURL = (a, b) => {
 
 const app = express();
 
-app.get("/emojimix", async (req, res) => {
+app.get("/api", async (req, res) => {
     try {
         const emoji = String(req.query.e || "").trim();
 
