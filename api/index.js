@@ -333,7 +333,7 @@ app.get("/api", async (req, res) => {
             .filter(Boolean);
 
         if (!emoji1 || !emoji2) {
-            return res.status(400).json({
+            return res.json({
                 code: 400,
                 msg: "Gunakan 2 emoji",
                 example: "/emojimix?e=😂%2B🔥"
@@ -350,7 +350,7 @@ app.get("/api", async (req, res) => {
             res.end(buffer);
         }
     } catch (error) {
-        return res.status(404).json({
+        return res.json({
             code: 404,
             msg: error.message
         });
