@@ -1,4 +1,5 @@
 import got from "got";
+import express from "express";
 
 const API = "https://www.gstatic.com/android/keyboard/emojikitchen/";
 
@@ -321,7 +322,9 @@ const getURL = (a, b) => {
     return `${API}${e1[1]}/${u1}/${u1}_${u2}.png`;
 };
 
-export async function emojimix(req, res) {
+const app = express();
+
+app.get("/emojimix", async (req, res) => {
     try {
         const emoji = String(req.query.e || "").trim();
 
@@ -336,7 +339,7 @@ export async function emojimix(req, res) {
                 .end(JSON.stringify({
                     code: 400,
                     msg: "Gunakan 2 emoji",
-                    example: "/api/emojimix?e=😂%2B🔥"
+                    example: "/emojimix?e=😂%2B🔥"
                 }, null, 2));
         }
 
@@ -355,4 +358,6 @@ export async function emojimix(req, res) {
             msg: error.message
         }, null, 2));
     }
-}
+});
+
+app.listen(3000, "0.0.0.0");
