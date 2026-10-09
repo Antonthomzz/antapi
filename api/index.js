@@ -325,36 +325,46 @@ const getURL = (a, b) => {
 const app = express();
 
 app.get("/api", async (req, res) => {
-    try {
-        const emoji = String(req.query.e || "").trim();
+    const emoji = String(req.query.e || "").trim();
+    const [emoji1, emoji2] = emoji.split(/[+| ]+/).filter(Boolean);
 
-        const [emoji1, emoji2] = emoji
-            .split(/[+| ]+/)
-            .filter(Boolean);
-
-        if (!emoji1 || !emoji2) {
-            return res.json({
-                code: 400,
-                msg: "Gunakan 2 emoji",
-                example: "/emojimix?e=😂%2B🔥"
-            });
-        }
-
-        for (const [a, b] of [[emoji1, emoji2], [emoji2, emoji1]]) {
-            const buffer = await got(getURL(a, b)).buffer();
-
-            res.setHeader("Content-Type", "image/png");
-            res.setHeader("Content-Length", buffer.length);
-            res.setHeader("Cache-Control", "public, max-age=86400");
-
-            res.end(buffer);
-        }
-    } catch (error) {
-        return res.json({
-            code: 404,
-            msg: error.message
+    if (!emoji1 || !emoji2) {
+        return res.status(400).json({
+            code: 400,
+            msg: "Gunakan 2 emoji",
+            example: "/emojimix?e=😂%2B🔥"
         });
     }
+
+    for (const [a, b] of [
+        [emoji1, emoji2],
+        [emoji2, emoji1]
+    ]) {
+        try {
+            const url = getURL(a, b);
+
+            const response = await got(url, {
+                responseType: "buffer",
+                throwHttpErrors: false
+            });
+
+            if (response.statusCode !== 200) continue;
+
+            res.set({
+                "Content-Type": "image/png",
+                "Content-Length": response.body.length,
+                "Cache-Control": "public, max-age=86400"
+            });
+
+            return res.end(response.body);
+        } catch { }
+    }
+
+    return res.status(404).json({
+        code: 404,
+        msg: "Kombinasi emoji tidak ditemukan di Google Emoji Kitchen",
+        emojis: [emoji1, emoji2]
+    });
 });
 
 app.listen(3000, "0.0.0.0");
